@@ -1,0 +1,44 @@
+{
+  "name": "@lunar-calendar/core",
+  "version": "1.0.0",
+  "description": "Core lunar calendar calculations - offline-first Vietnamese calendar",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "eslint": "^8.55.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "lunar-calendar",
+    "vietnamese-calendar",
+    "am-lich",
+    "can-chi",
+    "offline"
+  ],
+  "author": "DenDa Team",
+  "license": "MIT"
+}
