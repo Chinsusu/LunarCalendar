@@ -1,5 +1,9 @@
 /** @type {import('tailwindcss').Config} */
+const nativewind = require('nativewind/preset');
+
 module.exports = {
+  presets: [nativewind],
+  important: true,
   content: [
     './app/**/*.{js,jsx,ts,tsx}',
     './components/**/*.{js,jsx,ts,tsx}',
@@ -8,7 +12,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#DC2626',
+        primary: '#4CAF50',
         'hoang-dao': '#FEF3C7',
         'hoang-dao-dark': '#F59E0B',
         'hac-dao': '#FEE2E2',

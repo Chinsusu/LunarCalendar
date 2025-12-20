@@ -167,21 +167,11 @@ export default function DayDetailScreen() {
           <Text className="text-base font-semibold text-gray-900 mb-3">
             Giờ Hoàng Đạo (6 giờ tốt)
           </Text>
-          <View
-            className={`flex-row flex-wrap ${
-              isDesktop ? 'gap-3' : isTablet ? 'gap-2' : 'gap-2'
-            }`}
-          >
+          <View className="flex-row flex-wrap">
             {hoangDaoHours.map((hour) => (
               <View
                 key={hour.chi}
-                style={{
-                  width: isDesktop
-                    ? 'calc(16.666% - 10px)'
-                    : isTablet
-                    ? 'calc(25% - 6px)'
-                    : 'calc(33.333% - 6px)',
-                }}
+                style={{ width: isDesktop ? '16.666%' : isTablet ? '25%' : '33.333%', padding: 6 }}
               >
                 <HourCard
                   chi={hour.chiName}
@@ -200,21 +190,11 @@ export default function DayDetailScreen() {
           <Text className="text-base font-semibold text-gray-900 mb-3">
             Giờ Hắc Đạo (6 giờ xấu)
           </Text>
-          <View
-            className={`flex-row flex-wrap ${
-              isDesktop ? 'gap-3' : isTablet ? 'gap-2' : 'gap-2'
-            }`}
-          >
+          <View className="flex-row flex-wrap">
             {hacDaoHours.map((hour) => (
               <View
                 key={hour.chi}
-                style={{
-                  width: isDesktop
-                    ? 'calc(16.666% - 10px)'
-                    : isTablet
-                    ? 'calc(25% - 6px)'
-                    : 'calc(33.333% - 6px)',
-                }}
+                style={{ width: isDesktop ? '16.666%' : isTablet ? '25%' : '33.333%', padding: 6 }}
               >
                 <HourCard
                   chi={hour.chiName}

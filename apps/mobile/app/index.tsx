@@ -1,412 +1,368 @@
 /**
- * Home Screen - Calendar View
+ * Home Screen (Classic "Vạn Niên" UI)
  * @lunar-calendar/mobile
  */
 
-import { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  useWindowDimensions,
-  Platform,
-} from 'react-native';
-import { Link } from 'expo-router';
-import {
-  getMonthCalendar,
-  getTodayInfo,
-  getDayInfo,
-  DayInfo,
-  VIETNAM_LOCATIONS,
-} from '@lunar-calendar/core';
-import { Container, Card, Badge, Button, DayCell } from '@lunar-calendar/ui';
+import { useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, Text, TextInput, View, useWindowDimensions, Platform } from 'react-native';
+import { Link, router } from 'expo-router';
+import { formatHourRange, getDayInfo, VIETNAM_LOCATIONS } from '@lunar-calendar/core';
+import { Container } from '@lunar-calendar/ui';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
-const WEEKDAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-const MONTHS_VN = [
-  'Tháng 1',
-  'Tháng 2',
-  'Tháng 3',
-  'Tháng 4',
-  'Tháng 5',
-  'Tháng 6',
-  'Tháng 7',
-  'Tháng 8',
-  'Tháng 9',
-  'Tháng 10',
-  'Tháng 11',
-  'Tháng 12',
-];
+type SolarDate = { year: number; month: number; day: number };
+
+function pad2(value: number) {
+  return String(value).padStart(2, '0');
+}
+
+function toYmd(solar: SolarDate) {
+  return `${solar.year}-${pad2(solar.month)}-${pad2(solar.day)}`;
+}
+
+function fromDate(date: Date): SolarDate {
+  return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+}
+
+function toDate(solar: SolarDate) {
+  return new Date(solar.year, solar.month - 1, solar.day);
+}
+
+function addDays(solar: SolarDate, deltaDays: number): SolarDate {
+  const next = toDate(solar);
+  next.setDate(next.getDate() + deltaDays);
+  return fromDate(next);
+}
+
+function addMonths(year: number, month: number, deltaMonths: number) {
+  const base = new Date(year, month - 1, 1);
+  base.setMonth(base.getMonth() + deltaMonths);
+  return { year: base.getFullYear(), month: base.getMonth() + 1 };
+}
+
+function clampDay(year: number, month: number, desiredDay: number) {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  return Math.min(desiredDay, daysInMonth);
+}
+
+const weekLabels = ['Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy', 'Chủ nhật'];
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
-  const today = new Date();
+  const isNarrow = width < 768;
 
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const today = useMemo(() => fromDate(new Date()), []);
+  const [selected, setSelected] = useState<SolarDate>(today);
+  const [monthYear, setMonthYear] = useState(() => ({ year: today.year, month: today.month }));
+  const [jumpMonth, setJumpMonth] = useState(pad2(today.month));
+  const [jumpYear, setJumpYear] = useState(String(today.year));
 
-  // Check if desktop
-  const isDesktop = width > 1024;
-  const isTablet = width > 768 && width <= 1024;
+  useEffect(() => {
+    setJumpMonth(pad2(monthYear.month));
+    setJumpYear(String(monthYear.year));
+  }, [monthYear.month, monthYear.year]);
 
-  // Get calendar data
-  const calendarData = useMemo(() => {
-    return getMonthCalendar(currentYear, currentMonth, VIETNAM_LOCATIONS.hanoi);
-  }, [currentYear, currentMonth]);
+  const selectedInfo = useMemo(
+    () => getDayInfo(selected, VIETNAM_LOCATIONS.hanoi),
+    [selected.day, selected.month, selected.year]
+  );
 
-  // Get today's info for header
-  const todayInfo = useMemo(() => getTodayInfo(), []);
+  const monthGrid = useMemo(() => {
+    const firstOfMonth = new Date(monthYear.year, monthYear.month - 1, 1);
+    // JS: Sunday=0 ... Saturday=6. We want Monday=0 ... Sunday=6.
+    const mondayFirstOffset = (firstOfMonth.getDay() + 6) % 7;
+    const gridStart = new Date(monthYear.year, monthYear.month - 1, 1 - mondayFirstOffset);
 
-  // Get selected day info for desktop sidebar
-  const selectedDayInfo = useMemo(() => {
-    if (!selectedDate) return null;
-    const [year, month, day] = selectedDate.split('-').map(Number);
-    return getDayInfo({ year, month, day }, VIETNAM_LOCATIONS.hanoi);
-  }, [selectedDate]);
-
-  // Calculate first day of month offset
-  const firstDayOffset = useMemo(() => {
-    return new Date(currentYear, currentMonth - 1, 1).getDay();
-  }, [currentYear, currentMonth]);
-
-  // Navigation
-  const goToPrevMonth = () => {
-    if (currentMonth === 1) {
-      setCurrentMonth(12);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
+    const cells: Array<{ solar: SolarDate; inMonth: boolean; info: ReturnType<typeof getDayInfo> }> = [];
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(gridStart);
+      d.setDate(gridStart.getDate() + i);
+      const solar = fromDate(d);
+      const inMonth = solar.year === monthYear.year && solar.month === monthYear.month;
+      cells.push({
+        solar,
+        inMonth,
+        info: getDayInfo(solar, VIETNAM_LOCATIONS.hanoi),
+      });
     }
+
+    return cells;
+  }, [monthYear.month, monthYear.year]);
+
+  const goPrevDay = () => {
+    const next = addDays(selected, -1);
+    setSelected(next);
+    setMonthYear({ year: next.year, month: next.month });
   };
 
-  const goToNextMonth = () => {
-    if (currentMonth === 12) {
-      setCurrentMonth(1);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
+  const goNextDay = () => {
+    const next = addDays(selected, 1);
+    setSelected(next);
+    setMonthYear({ year: next.year, month: next.month });
+  };
+
+  const goPrevMonth = () => {
+    const next = addMonths(monthYear.year, monthYear.month, -1);
+    setMonthYear(next);
+    setSelected((prev) => ({ ...prev, year: next.year, month: next.month, day: clampDay(next.year, next.month, prev.day) }));
+  };
+
+  const goNextMonth = () => {
+    const next = addMonths(monthYear.year, monthYear.month, 1);
+    setMonthYear(next);
+    setSelected((prev) => ({ ...prev, year: next.year, month: next.month, day: clampDay(next.year, next.month, prev.day) }));
+  };
+
+  const goToday = () => {
+    setSelected(today);
+    setMonthYear({ year: today.year, month: today.month });
+  };
+
+  const onJump = () => {
+    const m = Number(jumpMonth);
+    const y = Number(jumpYear);
+    if (!Number.isFinite(m) || !Number.isFinite(y) || m < 1 || m > 12 || y < 1900 || y > 2100) {
+      return;
     }
+    setMonthYear({ year: y, month: m });
+    setSelected((prev) => ({ ...prev, year: y, month: m, day: clampDay(y, m, prev.day) }));
   };
 
-  const goToToday = () => {
-    setCurrentYear(today.getFullYear());
-    setCurrentMonth(today.getMonth() + 1);
-  };
-
-  // Setup keyboard shortcuts for web
   useKeyboardShortcuts({
-    onPrevMonth: goToPrevMonth,
-    onNextMonth: goToNextMonth,
-    onToday: goToToday,
-    onEscape: () => setSelectedDate(null),
+    onPrevMonth: goPrevMonth,
+    onNextMonth: goNextMonth,
+    onToday: goToday,
   });
 
-  const cellWidth = isDesktop ? 80 : (width - 32) / 7;
+  const hoangDaoText = selectedInfo.isHoangDaoDay ? 'Ngày hoàng đạo' : 'Ngày hắc đạo';
+  const menhNgay = selectedInfo.canChiDay.napAm || selectedInfo.canChiDay.element;
+  const gioHoangDao = selectedInfo.hours
+    .filter((h) => h.type === 'hoangdao')
+    .map((h) => `${h.chiName} (${formatHourRange(h)})`)
+    .join(', ');
 
-  const isToday = (day: DayInfo) => {
-    return (
-      day.solar.year === today.getFullYear() &&
-      day.solar.month === today.getMonth() + 1 &&
-      day.solar.day === today.getDate()
-    );
-  };
-
-  const handleDayPress = (day: DayInfo) => {
-    const dateStr = `${day.solar.year}-${day.solar.month}-${day.solar.day}`;
-    if (isDesktop) {
-      // On desktop, show in sidebar
-      setSelectedDate(dateStr);
-    }
-    // On mobile/tablet, will navigate via Link
-  };
+  const selectedYmd = toYmd(selected);
 
   return (
-    <View className="flex-1 bg-gray-50">
-      {/* Today Summary Header */}
-      <View className="bg-primary p-4">
-        <Container maxWidth="calendar">
-          <Text className="text-white text-2xl font-bold text-center">
-            {todayInfo.lunar.day} tháng {todayInfo.lunar.monthName}
-          </Text>
-          <Text className="text-red-100 text-sm text-center mt-1">
-            Ngày {todayInfo.canChiDay.fullName} • {todayInfo.canChiYear.fullName}
-          </Text>
-          <View className="flex-row justify-center mt-2 gap-2">
-            <Badge variant={todayInfo.isHoangDaoDay ? 'good' : 'bad'} size="sm">
-              {todayInfo.isHoangDaoDay ? 'Hoàng Đạo' : 'Hắc Đạo'}
-            </Badge>
-            <Badge variant="neutral" size="sm">
-              {todayInfo.truc.name}
-            </Badge>
-          </View>
-          {todayInfo.sunTimes && (
-            <Text className="text-red-100 text-xs text-center mt-2">
-              🌅 {todayInfo.sunTimes.sunrise} • 🌇 {todayInfo.sunTimes.sunset}
-            </Text>
-          )}
+    <ScrollView className="flex-1 bg-gray-100">
+      {/* Top Bar */}
+      <View className="bg-primary">
+        <Container className="px-4 py-3 flex-row items-center justify-between">
+          <Text className="text-white font-bold text-lg">LỊCH VẠN NIÊN</Text>
+
+          <Link href={`/day/${selectedYmd}`} asChild>
+            <Pressable className="bg-green-700 px-3 py-2 rounded flex-row items-center">
+              <Text className="text-white font-semibold">Xem nhanh theo ngày</Text>
+            </Pressable>
+          </Link>
         </Container>
       </View>
 
-      {/* Main Content - Desktop 2 columns, Mobile single column */}
-      <View className={isDesktop ? 'flex-row flex-1' : 'flex-1'}>
-        {/* Calendar Section */}
-        <View className={isDesktop ? 'flex-1 w-3/5' : 'flex-1'}>
-          <ScrollView>
-            <Container maxWidth="calendar">
-              {/* Month Navigation */}
-              <View className="flex-row justify-between items-center py-4 border-b border-gray-200">
-                <Pressable
-                  onPress={goToPrevMonth}
-                  className={`p-2 ${Platform.OS === 'web' ? 'hover:bg-gray-100 cursor-pointer' : ''} rounded-lg`}
-                >
-                  <Text className="text-2xl text-primary">‹</Text>
-                </Pressable>
+      <Container className="px-4 py-4">
+        {/* Day Summary */}
+        <View className="bg-white border border-gray-200 rounded">
+          <View className="flex-row items-stretch">
+            <Pressable
+              onPress={goPrevDay}
+              className="w-14 items-center justify-center border-r border-gray-200"
+              accessibilityLabel="Ngày trước"
+            >
+              <Text className="text-2xl text-primary">‹</Text>
+            </Pressable>
 
-                <Pressable onPress={goToToday}>
-                  <Text className="text-lg font-semibold text-gray-900">
-                    {MONTHS_VN[currentMonth - 1]} {currentYear}
+            <View className={`flex-1 ${isNarrow ? 'py-4' : 'py-5'} px-4`}>
+              <View className={isNarrow ? 'flex-col gap-4' : 'flex-row'}>
+                {/* Solar */}
+                <View className={`flex-1 ${isNarrow ? '' : 'pr-4 border-r border-gray-200'} items-center`}>
+                  <Text className="text-gray-800 font-semibold">Dương Lịch</Text>
+                  <Text className="text-primary font-extrabold text-6xl leading-[72px] mt-2">
+                    {selectedInfo.solar.day}
                   </Text>
-                </Pressable>
+                  <Text className="text-gray-700 mt-1">
+                    Tháng {selectedInfo.solar.month} năm {selectedInfo.solar.year}
+                  </Text>
+                </View>
 
-                <Pressable
-                  onPress={goToNextMonth}
-                  className={`p-2 ${Platform.OS === 'web' ? 'hover:bg-gray-100 cursor-pointer' : ''} rounded-lg`}
-                >
-                  <Text className="text-2xl text-primary">›</Text>
-                </Pressable>
+                {/* Lunar */}
+                <View className={`flex-1 ${isNarrow ? '' : 'pl-4'} items-center`}>
+                  <Text className="text-gray-800 font-semibold">Âm lịch</Text>
+                  <Text className="text-gray-900 font-extrabold text-6xl leading-[72px] mt-2">
+                    {selectedInfo.lunar.day}
+                  </Text>
+                  <Text className="text-gray-700 mt-1">
+                    Tháng {selectedInfo.lunar.month} năm {selectedInfo.canChiYear.fullName}
+                    {selectedInfo.lunar.isLeapMonth ? ' (Nhuận)' : ''}
+                  </Text>
+                  {selectedInfo.lunar.day === 1 && (
+                    <Text className="text-red-600 font-semibold mt-1">Ngày mồng 1</Text>
+                  )}
+                </View>
               </View>
 
-              {/* Weekday Headers */}
-              <View className="flex-row py-2 border-b border-gray-200">
-                {WEEKDAYS.map((day, index) => (
-                  <View
-                    key={day}
-                    style={{ width: cellWidth }}
-                    className="items-center"
-                  >
-                    <Text
-                      className={`text-xs font-semibold ${
-                        index === 0 ? 'text-primary' : 'text-gray-600'
-                      }`}
+              <View className="border-t border-gray-200 mt-4 pt-4">
+                <Text className="text-gray-900">
+                  <Text className="font-semibold">Mệnh ngày:</Text> {menhNgay} - {hoangDaoText}
+                </Text>
+                <Text className="text-gray-900 mt-2">
+                  <Text className="font-semibold">Giờ hoàng đạo:</Text> {gioHoangDao}
+                </Text>
+              </View>
+            </View>
+
+            <Pressable
+              onPress={goNextDay}
+              className="w-14 items-center justify-center border-l border-gray-200"
+              accessibilityLabel="Ngày sau"
+            >
+              <Text className="text-2xl text-primary">›</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Month Header */}
+        <View className="mt-4 bg-primary rounded overflow-hidden">
+          <View className="px-3 py-2 flex-row items-center justify-between">
+            <Pressable onPress={goPrevMonth} className="w-10 items-center justify-center" accessibilityLabel="Tháng trước">
+              <Text className="text-white text-xl">‹</Text>
+            </Pressable>
+
+            <Text className="text-white font-bold">
+              THÁNG {pad2(monthYear.month)} - {monthYear.year}
+            </Text>
+
+            <View className="flex-row items-center gap-2">
+              <View className="flex-row items-center gap-2">
+                <TextInput
+                  value={jumpMonth}
+                  onChangeText={setJumpMonth}
+                  inputMode="numeric"
+                  className="bg-white px-2 py-1 rounded w-14 text-center"
+                  placeholder="MM"
+                />
+                <TextInput
+                  value={jumpYear}
+                  onChangeText={setJumpYear}
+                  inputMode="numeric"
+                  className="bg-white px-2 py-1 rounded w-20 text-center"
+                  placeholder="YYYY"
+                />
+              </View>
+              <Pressable onPress={onJump} className="bg-green-700 px-3 py-1 rounded" accessibilityLabel="Xem">
+                <Text className="text-white font-bold">XEM</Text>
+              </Pressable>
+              <Pressable onPress={goNextMonth} className="w-10 items-center justify-center" accessibilityLabel="Tháng sau">
+                <Text className="text-white text-xl">›</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+
+        {/* Calendar Table */}
+        <View className="bg-white border border-gray-200 rounded-b overflow-hidden">
+          {/* Week header */}
+          <View className="flex-row">
+            {weekLabels.map((label, index) => {
+              const isSunday = index === 6;
+              return (
+                <View key={label} className="flex-1 border-r border-gray-200 px-2 py-2">
+                  <Text className={`text-center text-xs font-semibold ${isSunday ? 'text-red-600' : 'text-gray-700'}`}>
+                    {label}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+
+          {/* 6 rows */}
+          {Array.from({ length: 6 }).map((_, rowIndex) => {
+            const row = monthGrid.slice(rowIndex * 7, rowIndex * 7 + 7);
+            return (
+              <View key={rowIndex} className="flex-row">
+                {row.map((cell, colIndex) => {
+                  const isSunday = colIndex === 6;
+                  const isToday = cell.solar.year === today.year && cell.solar.month === today.month && cell.solar.day === today.day;
+                  const isSelected = cell.solar.year === selected.year && cell.solar.month === selected.month && cell.solar.day === selected.day;
+                  const showLunarMonth = cell.info.lunar.day === 1;
+                  const solarText = pad2(cell.solar.day);
+
+                  const baseText = cell.inMonth ? 'text-gray-900' : 'text-gray-400';
+                  const solarColor = isSunday ? (cell.inMonth ? 'text-red-600' : 'text-red-300') : baseText;
+
+                  const bg =
+                    isSelected
+                      ? 'bg-orange-100'
+                      : isToday
+                      ? 'bg-yellow-100'
+                      : '';
+
+                  return (
+                    <Pressable
+                      key={`${cell.solar.year}-${cell.solar.month}-${cell.solar.day}`}
+                      onPress={() => {
+                        setSelected(cell.solar);
+                        if (!cell.inMonth) {
+                          setMonthYear({ year: cell.solar.year, month: cell.solar.month });
+                        }
+                        if (isNarrow && Platform.OS !== 'web') {
+                          router.push(`/day/${toYmd(cell.solar)}`);
+                        }
+                      }}
+                      onLongPress={() => {
+                        if (Platform.OS === 'web') {
+                          router.push(`/day/${toYmd(cell.solar)}`);
+                        }
+                      }}
+                      className={`flex-1 border-t border-r border-gray-200 p-2 min-h-[80px] ${bg}`}
+                      accessibilityLabel={`Ngày ${cell.solar.day}/${cell.solar.month}/${cell.solar.year}`}
                     >
-                      {day}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-
-              {/* Calendar Grid */}
-              <View className="flex-row flex-wrap py-2">
-                {/* Empty cells for offset */}
-                {Array.from({ length: firstDayOffset }).map((_, i) => (
-                  <View
-                    key={`empty-${i}`}
-                    style={{ width: cellWidth }}
-                    className="aspect-square"
-                  />
-                ))}
-
-                {/* Day cells */}
-                {calendarData.map((day) => {
-                  const dayOfWeek = new Date(
-                    day.solar.year,
-                    day.solar.month - 1,
-                    day.solar.day
-                  ).getDay();
-                  const dateStr = `${day.solar.year}-${day.solar.month}-${day.solar.day}`;
-
-                  const DayCellComponent = (
-                    <DayCell
-                      solarDay={day.solar.day}
-                      lunarDay={day.lunar.day}
-                      lunarMonth={day.lunar.month}
-                      isToday={isToday(day)}
-                      isHoangDao={day.isHoangDaoDay}
-                      isSunday={dayOfWeek === 0}
-                      isFirstLunarDay={day.lunar.day === 1}
-                      style={{ width: cellWidth }}
-                      onPress={() => handleDayPress(day)}
-                    />
-                  );
-
-                  if (isDesktop) {
-                    // Desktop: Just pressable, shows in sidebar
-                    return (
-                      <View key={dateStr} style={{ width: cellWidth }}>
-                        {DayCellComponent}
+                      <View className="flex-row items-start justify-between">
+                        <Text className={`text-lg font-bold ${solarColor}`}>{solarText}</Text>
+                        <Text className={`text-xs ${cell.inMonth ? 'text-gray-600' : 'text-gray-400'}`}>
+                          {showLunarMonth ? `${cell.info.lunar.day}/${cell.info.lunar.month}` : cell.info.lunar.day}
+                        </Text>
                       </View>
-                    );
-                  } else {
-                    // Mobile/Tablet: Navigate to detail page
-                    return (
-                      <Link
-                        key={dateStr}
-                        href={`/day/${dateStr}`}
-                        asChild
-                      >
-                        <View style={{ width: cellWidth }}>
-                          {DayCellComponent}
+
+                      <View className="flex-1 justify-end">
+                        {cell.info.lunar.day === 1 && (
+                          <Text className={`text-[11px] ${cell.inMonth ? 'text-red-600' : 'text-red-300'}`}>
+                            Ngày mồng 1
+                          </Text>
+                        )}
+
+                        <View className="flex-row items-center justify-between mt-1">
+                          <Text className={`text-[11px] ${cell.inMonth ? 'text-gray-500' : 'text-gray-400'}`}>
+                            {cell.info.canChiDay.fullName}
+                          </Text>
+                          <View
+                            className={`w-2 h-2 rounded-full ${
+                              cell.info.isHoangDaoDay ? 'bg-green-600' : 'bg-gray-300'
+                            }`}
+                          />
                         </View>
-                      </Link>
-                    );
-                  }
+                      </View>
+                    </Pressable>
+                  );
                 })}
               </View>
-
-              {/* Legend */}
-              <View className="flex-row justify-center py-4 gap-6">
-                <View className="flex-row items-center gap-2">
-                  <View className="w-3 h-3 rounded-full bg-hoang-dao" />
-                  <Text className="text-xs text-gray-600">Ngày hoàng đạo</Text>
-                </View>
-                <View className="flex-row items-center gap-2">
-                  <View className="w-3 h-3 rounded-full bg-primary" />
-                  <Text className="text-xs text-gray-600">Hôm nay</Text>
-                </View>
-              </View>
-            </Container>
-          </ScrollView>
+            );
+          })}
         </View>
 
-        {/* Sidebar - Desktop only */}
-        {isDesktop && (
-          <View className="w-2/5 border-l border-gray-200 bg-white">
-            <ScrollView>
-              {selectedDayInfo ? (
-                <View className="p-4">
-                  <DaySidebar dayInfo={selectedDayInfo} />
-                </View>
-              ) : (
-                <View className="p-4 items-center justify-center" style={{ minHeight: 200 }}>
-                  <Text className="text-gray-400 text-center">
-                    Chọn một ngày để xem chi tiết
-                  </Text>
-                </View>
-              )}
-            </ScrollView>
+        {/* Legend */}
+        <View className="flex-row items-center gap-4 mt-3">
+          <View className="flex-row items-center gap-2">
+            <View className="w-2 h-2 rounded-full bg-green-600" />
+            <Text className="text-gray-700 text-sm">Ngày hoàng đạo</Text>
           </View>
-        )}
-      </View>
-    </View>
+          <View className="flex-row items-center gap-2">
+            <View className="w-2 h-2 rounded-full bg-gray-300" />
+            <Text className="text-gray-700 text-sm">Ngày hắc đạo</Text>
+          </View>
+          <Pressable onPress={goToday} className="ml-auto bg-white border border-gray-200 px-3 py-2 rounded">
+            <Text className="text-gray-900 font-semibold">Hôm nay</Text>
+          </Pressable>
+        </View>
+      </Container>
+    </ScrollView>
   );
 }
-
-// Sidebar component for desktop
-function DaySidebar({ dayInfo }: { dayInfo: any }) {
-  return (
-    <View>
-      {/* Header */}
-      <View className="mb-4">
-        <Text className="text-2xl font-bold text-gray-900">
-          {dayInfo.solar.day}/{dayInfo.solar.month}/{dayInfo.solar.year}
-        </Text>
-        <Text className="text-base text-gray-600 mt-1">
-          {dayInfo.lunar.day} tháng {dayInfo.lunar.monthName}{' '}
-          {dayInfo.lunar.isLeapMonth ? '(Nhuận)' : ''}
-        </Text>
-      </View>
-
-      {/* Can Chi */}
-      <Card padding="md" className="mb-4">
-        <Text className="text-sm font-semibold text-gray-700 mb-2">Can Chi</Text>
-        <View className="flex-row justify-between">
-          <View className="items-center flex-1">
-            <Text className="text-xs text-gray-500">Năm</Text>
-            <Text className="text-sm font-semibold text-gray-900 mt-1">
-              {dayInfo.canChiYear.fullName}
-            </Text>
-          </View>
-          <View className="items-center flex-1">
-            <Text className="text-xs text-gray-500">Tháng</Text>
-            <Text className="text-sm font-semibold text-gray-900 mt-1">
-              {dayInfo.canChiMonth.fullName}
-            </Text>
-          </View>
-          <View className="items-center flex-1">
-            <Text className="text-xs text-gray-500">Ngày</Text>
-            <Text className="text-sm font-semibold text-gray-900 mt-1">
-              {dayInfo.canChiDay.fullName}
-            </Text>
-          </View>
-        </View>
-      </Card>
-
-      {/* Day Quality */}
-      <Card padding="md" className="mb-4">
-        <View className="flex-row gap-2 mb-2">
-          <Badge variant={dayInfo.isHoangDaoDay ? 'good' : 'bad'} size="sm">
-            {dayInfo.isHoangDaoDay ? '✓ Hoàng Đạo' : '✗ Hắc Đạo'}
-          </Badge>
-          <Badge variant="neutral" size="sm">
-            Trực: {dayInfo.truc.name}
-          </Badge>
-        </View>
-
-        {dayInfo.truc.goodFor.length > 0 && (
-          <View className="mt-2">
-            <Text className="text-xs font-semibold text-green-600">✓ Nên làm:</Text>
-            <Text className="text-xs text-gray-700 mt-1">
-              {dayInfo.truc.goodFor.join(', ')}
-            </Text>
-          </View>
-        )}
-
-        {dayInfo.truc.badFor.length > 0 && (
-          <View className="mt-2">
-            <Text className="text-xs font-semibold text-red-600">✗ Kiêng:</Text>
-            <Text className="text-xs text-gray-700 mt-1">
-              {dayInfo.truc.badFor.join(', ')}
-            </Text>
-          </View>
-        )}
-      </Card>
-
-      {/* Sun Times */}
-      {dayInfo.sunTimes && (
-        <Card padding="md">
-          <Text className="text-sm font-semibold text-gray-700 mb-3">Giờ Mặt Trời</Text>
-          <View className="flex-row justify-around">
-            <View className="items-center">
-              <Text className="text-2xl">🌅</Text>
-              <Text className="text-xs text-gray-500 mt-1">Bình minh</Text>
-              <Text className="text-sm font-semibold text-gray-900 mt-1">
-                {dayInfo.sunTimes.sunrise}
-              </Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl">☀️</Text>
-              <Text className="text-xs text-gray-500 mt-1">Giữa trưa</Text>
-              <Text className="text-sm font-semibold text-gray-900 mt-1">
-                {dayInfo.sunTimes.solarNoon}
-              </Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl">🌇</Text>
-              <Text className="text-xs text-gray-500 mt-1">Hoàng hôn</Text>
-              <Text className="text-sm font-semibold text-gray-900 mt-1">
-                {dayInfo.sunTimes.sunset}
-              </Text>
-            </View>
-          </View>
-        </Card>
-      )}
-
-      {/* View Full Details Link */}
-      <Link
-        href={`/day/${dayInfo.solar.year}-${dayInfo.solar.month}-${dayInfo.solar.day}`}
-        asChild
-      >
-        <Pressable className="mt-4 p-3 bg-primary rounded-lg items-center">
-          <Text className="text-white font-semibold">Xem chi tiết đầy đủ</Text>
-        </Pressable>
-      </Link>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  // Keeping minimal styles for compatibility
-});

@@ -1,4 +1,5 @@
 const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
 const path = require('path');
 
 // Find the project root (monorepo root)
@@ -19,4 +20,6 @@ config.resolver.nodeModulesPaths = [
 // 3. Force resolving nested modules to the folders below
 config.resolver.disableHierarchicalLookup = true;
 
-module.exports = config;
+module.exports = withNativeWind(config, {
+  input: path.join(projectRoot, 'global.css'),
+});
