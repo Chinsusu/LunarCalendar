@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { daysInLunarMonth, getLeapMonth, lunarToSolar } from "@/lib/lunar";
 import { clampLunarDay } from "@/lib/utils";
 
-const THANG_LABELS = ["", "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng Chạp"];
+const THANG_LABELS = ["", "Tháng Giêng", "Tháng Hai", "Tháng Ba", "Tháng Tư", "Tháng Năm", "Tháng Sáu", "Tháng Bảy", "Tháng Tám", "Tháng Chín", "Tháng Mười", "Tháng Mười Một", "Tháng Chạp"];
 const ITEM_H = 48; // px mỗi item
 
 interface LunarDatePickerProps {
