@@ -1,0 +1,47 @@
+{
+    "name": "Lịch Âm Việt",
+    "short_name": "Lịch Âm",
+    "description": "Ứng dụng lịch âm dương lịch Việt Nam — tra cứu ngày âm, Can Chi, Hoàng Đạo",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#F5ECD7",
+    "theme_color": "#8B1A1A",
+    "lang": "vi",
+    "categories": [
+        "lifestyle",
+        "utilities"
+    ],
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512x512-maskable.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Lịch Tháng",
+            "url": "/thang",
+            "description": "Xem lịch tháng âm dương"
+        },
+        {
+            "name": "Sự Kiện",
+            "url": "/su-kien",
+            "description": "Quản lý sự kiện và ghi chú"
+        }
+    ]
+}
