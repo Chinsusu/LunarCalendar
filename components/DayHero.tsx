@@ -58,14 +58,14 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
             onTouchEnd={onTouchEnd}
             aria-label="Ngày âm lịch hôm nay"
         >
-            {/* Watermark trống đồng */}
+            {/* Watermark trống đồng Đông Sơn thật */}
             <div
                 aria-hidden="true"
                 className="absolute inset-0 bg-no-repeat bg-center pointer-events-none"
                 style={{
-                    backgroundImage: "url('/dong-son-drum.svg')",
-                    backgroundSize: "70%",
-                    opacity: 0.08,
+                    backgroundImage: "url('/background.png')",
+                    backgroundSize: "75%",
+                    opacity: 0.10,
                 }}
             />
 
