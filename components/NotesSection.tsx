@@ -60,8 +60,8 @@ export function NotesSection({ date }: NotesSectionProps) {
                                     style={{
                                         fontFamily: "var(--font-body)",
                                         fontWeight: note.isSystemNote ? 400 : 600,
-                                        fontSize: 15,
-                                        color: "var(--color-ink)",
+                                        fontSize: note.isSystemNote ? 13 : 15,
+                                        color: note.isSystemNote ? "var(--color-muted)" : "var(--color-ink)",
                                         textDecoration: note.isChecked ? "line-through" : "none",
                                         opacity: note.isChecked ? 0.5 : 1,
                                         fontStyle: note.isSystemNote ? "italic" : "normal",

@@ -36,10 +36,11 @@ export function BottomNav() {
                                     strokeWidth={active ? 2 : 1.5}
                                     style={{ transition: "color 150ms ease" }}
                                 />
-                                <span
-                                    className="text-[11px] font-body"
-                                    style={{ fontWeight: active ? 600 : 400 }}
-                                >
+                                <span style={{
+                                    fontFamily: "var(--font-body)",
+                                    fontWeight: active ? 600 : 400,
+                                    fontSize: 13,
+                                }}>
                                     {label}
                                 </span>
                                 {active && (
