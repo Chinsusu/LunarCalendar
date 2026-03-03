@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // PWA sẽ được bật khi cần, tạm disable để dev dễ hơn
-    // Bật lên khi build production: npm run build
+    eslint: {
+        // next lint bị treo do ESLint v8 config writer.
+        // TypeScript check dùng: npx tsc --noEmit
+        ignoreDuringBuilds: true,
+    },
 };
 
 export default nextConfig;

@@ -104,7 +104,9 @@ export default function SuKienPage() {
 
                                 {/* Delete */}
                                 <button
-                                    onClick={() => remove(event.id!)}
+                                    onClick={() => {
+                                        if (window.confirm(`Xóa sự kiện "${event.title}"?`)) remove(event.id!);
+                                    }}
                                     className="flex-shrink-0 cursor-pointer p-1 hover:opacity-70 transition-opacity"
                                     aria-label={`Xóa sự kiện ${event.title}`}
                                     style={{ color: "var(--color-muted)" }}

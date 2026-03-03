@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { db, type DailyNote, addNote, toggleNote, deleteNote } from "@/lib/db";
-import { toISODate } from "@/lib/utils";
+import { toISODate, getLunarFromDate } from "@/lib/utils";
+
+/** System notes tự động: Rằm và Mùng 1 âm lịch */
+const SYSTEM_NOTES: Record<number, string> = {
+    15: "🌕 Rằm — Lễ cúng Phật, thắp hương, ăn chay",
+    1: "🌑 Mùng Một — Cúng gia tiên, thắp nhang ban thờ",
+};
 
 export function useNotes(date: Date) {
     const [notes, setNotes] = useState<DailyNote[]>([]);
@@ -15,10 +21,30 @@ export function useNotes(date: Date) {
         setNotes(result);
     }, [solarDate]);
 
-    useEffect(() => { refresh(); }, [refresh]);
+    /** Tự động thêm system note Rằm/Mùng Một nếu chưa có */
+    const ensureSystemNote = useCallback(async () => {
+        const lunar = getLunarFromDate(date);
+        const template = SYSTEM_NOTES[lunar.day];
+        if (!template) return;
+
+        const existing = await db.dailyNotes
+            .where("solarDate").equals(solarDate)
+            .filter(n => n.isSystemNote)
+            .first();
+
+        if (!existing) {
+            await addNote(solarDate, template, true);
+            await refresh();
+        }
+    }, [date, solarDate, refresh]);
+
+    useEffect(() => {
+        refresh();
+        ensureSystemNote();
+    }, [refresh, ensureSystemNote]);
 
     const add = useCallback(async (content: string) => {
-        await addNote(solarDate, content);
+        await addNote(solarDate, content, false);
         await refresh();
     }, [solarDate, refresh]);
 
