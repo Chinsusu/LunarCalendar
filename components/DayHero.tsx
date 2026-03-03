@@ -87,16 +87,24 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
 
             {/* Content */}
             <div className={`flex flex-col items-center gap-1 z-10 ${animClass}`}>
-                {/* Lunar day number */}
+                {/* ① Dương lịch — trên cùng */}
+                <div className="flex flex-col items-center animate-fade-in-1">
+                    <span className="font-body text-sm font-semibold text-ink/80">
+                        {formatSolarDateLong(date)}
+                    </span>
+                    <span className="text-label text-muted-vn">(Dương lịch)</span>
+                </div>
+
+                {/* ② Số ngày âm lịch to */}
                 <span
-                    className="font-display font-bold text-primary animate-fade-in-1"
-                    style={{ fontSize: 80, lineHeight: 1, color: "var(--color-primary)" }}
+                    className="font-display font-bold text-primary animate-fade-in-2"
+                    style={{ fontSize: 88, lineHeight: 1, color: "var(--color-primary)" }}
                     aria-label={`Ngày ${lunar.day} âm lịch`}
                 >
                     {lunar.day}
                 </span>
 
-                {/* Month */}
+                {/* ③ Tên tháng âm */}
                 <div className="flex flex-col items-center animate-fade-in-2">
                     <span className="font-display font-semibold text-[22px] text-primary">
                         {lunar.monthName}
@@ -104,15 +112,8 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                     <span className="text-label text-muted-vn">(Âm)</span>
                 </div>
 
-                {/* Dương lịch */}
-                <div className="mt-1 animate-fade-in-2">
-                    <span className="text-sm font-body text-ink/70">
-                        {formatSolarDateLong(date)}
-                    </span>
-                </div>
-
-                {/* Can Chi năm */}
-                <div className="flex flex-col items-center mt-2 animate-fade-in-3">
+                {/* ④ Năm Can Chi */}
+                <div className="flex flex-col items-center mt-1 animate-fade-in-3">
                     <span className="font-body font-semibold text-[17px] text-primary">
                         Năm {lunar.yearName}
                     </span>
