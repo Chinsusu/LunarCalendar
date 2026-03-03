@@ -76,7 +76,7 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                 <ChevronRight size={22} color="var(--color-primary)" strokeWidth={1.5} />
             </button>
 
-            {/* Content */}
+            {/* Content — center align */}
             <div className={`flex flex-col items-center z-10 gap-0.5 ${animClass}`}>
 
                 {/* Font B · Color 2 · 15px — Ngày dương lịch */}
@@ -94,22 +94,22 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                 }} aria-label={`Ngày ${lunar.day} âm lịch`}>
                     {lunar.day}
                 </span>
+            </div>
 
-                {/* Font A · Lora Bold · 20px — Tháng (trái) & Năm (phải) cùng hàng */}
-                <div className="flex items-center justify-between self-stretch px-12 mt-2">
-                    <span style={{
-                        fontFamily: "var(--font-display)", fontWeight: 700,
-                        fontSize: 20, color: "var(--color-primary)",
-                    }}>
-                        {lunar.monthName}
-                    </span>
-                    <span style={{
-                        fontFamily: "var(--font-display)", fontWeight: 700,
-                        fontSize: 20, color: "var(--color-primary)",
-                    }}>
-                        Năm {lunar.yearName}
-                    </span>
-                </div>
+            {/* Tháng (trái) & Năm (phải) — sibling của section, w-full không bị co */}
+            <div className={`flex items-center justify-between z-10 w-full px-10 mt-1 ${animClass}`}>
+                <span style={{
+                    fontFamily: "var(--font-display)", fontWeight: 700,
+                    fontSize: 20, color: "var(--color-primary)",
+                }}>
+                    {lunar.monthName}
+                </span>
+                <span style={{
+                    fontFamily: "var(--font-display)", fontWeight: 700,
+                    fontSize: 20, color: "var(--color-primary)",
+                }}>
+                    Năm {lunar.yearName}
+                </span>
             </div>
         </section>
     );
