@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Calendar, Plus } from "lucide-react";
 import { DayHero } from "@/components/DayHero";
 import { DayInfoCard } from "@/components/DayInfoCard";
@@ -10,12 +11,36 @@ import { useLunarDate } from "@/hooks/useLunarDate";
 import { lunarToSolar } from "@/lib/lunar";
 import { toISODate } from "@/lib/utils";
 
-export default function HomePage() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Đọc ?date=YYYY-MM-DD từ query (M-06: navigate từ MonthCalendar)
+  function getInitialDate(): Date {
+    const param = searchParams.get("date");
+    if (param) {
+      const parts = param.split("-").map(Number);
+      if (parts.length === 3) return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    return new Date();
+  }
+
+  const [selectedDate, setSelectedDate] = useState<Date>(getInitialDate);
   const [mounted, setMounted] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
+
+  // Sync date param khi URL thay đổi (forward navigation)
+  useEffect(() => {
+    const param = searchParams.get("date");
+    if (param) {
+      const parts = param.split("-").map(Number);
+      if (parts.length === 3) setSelectedDate(new Date(parts[0], parts[1] - 1, parts[2]));
+      // Xóa query param khỏi URL để tránh state duplicate
+      router.replace("/", { scroll: false });
+    }
+  }, [searchParams, router]);
 
   const { lunar, canChi, hoangDaoHours, isHoangDao } = useLunarDate(selectedDate);
 
@@ -53,17 +78,8 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* DayHero */}
       <DayHero date={selectedDate} onDateChange={setSelectedDate} />
-
-      {/* DayInfoCard */}
-      <DayInfoCard
-        canChi={canChi}
-        hoangDaoHours={hoangDaoHours}
-        isHoangDao={isHoangDao}
-      />
-
-      {/* Notes */}
+      <DayInfoCard canChi={canChi} hoangDaoHours={hoangDaoHours} isHoangDao={isHoangDao} />
       <NotesSection date={selectedDate} />
 
       {/* FAB */}
@@ -76,7 +92,6 @@ export default function HomePage() {
         <Plus size={24} color="#FFF8F0" strokeWidth={2} />
       </button>
 
-      {/* LunarDatePicker */}
       {showPicker && (
         <LunarDatePicker
           initialYear={lunar.year}
@@ -91,5 +106,17 @@ export default function HomePage() {
         />
       )}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-primary font-display text-2xl animate-pulse">Lịch Âm Việt</div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }

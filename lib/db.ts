@@ -104,3 +104,29 @@ export async function addEvent(event: Omit<LunarEvent, "id" | "createdAt" | "upd
     const now = Date.now();
     return db.events.add({ ...event, createdAt: now, updatedAt: now });
 }
+
+/** Cập nhật sự kiện */
+export async function updateEvent(id: number, changes: Partial<Omit<LunarEvent, "id" | "createdAt">>): Promise<void> {
+    await db.events.update(id, { ...changes, updatedAt: Date.now() });
+}
+
+/** Lấy tất cả sự kiện xảy ra trong 30 ngày tới */
+export async function getUpcomingEvents(fromDate: Date, days = 30): Promise<Array<{ event: LunarEvent; solarDate: Date }>> {
+    const allEvents = await db.events.toArray();
+    const results: Array<{ event: LunarEvent; solarDate: Date }> = [];
+
+    for (let i = 0; i <= days; i++) {
+        const d = new Date(fromDate);
+        d.setDate(d.getDate() + i);
+        const { solarToLunar, lunarToSolar } = await import("./lunar");
+        const lunar = solarToLunar(d.getDate(), d.getMonth() + 1, d.getFullYear());
+
+        for (const ev of allEvents) {
+            if (ev.lunarDay === lunar.day && ev.lunarMonth === lunar.month && ev.isLeapMonth === lunar.isLeapMonth) {
+                results.push({ event: ev, solarDate: new Date(d) });
+            }
+        }
+    }
+
+    return results.sort((a, b) => a.solarDate.getTime() - b.solarDate.getTime());
+}

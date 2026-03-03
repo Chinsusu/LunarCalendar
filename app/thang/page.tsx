@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MonthCalendar } from "@/components/MonthCalendar";
+import { toISODate } from "@/lib/utils";
 
 export default function LichThangPage() {
     const today = new Date();
     const [year, setYear] = useState(today.getFullYear());
     const [month, setMonth] = useState(today.getMonth() + 1);
+    const router = useRouter();
 
     function prevMonth() {
         if (month === 1) { setMonth(12); setYear(y => y - 1); }
@@ -18,6 +21,11 @@ export default function LichThangPage() {
         else setMonth(m => m + 1);
     }
 
+    /** M-06: Tap ngày → navigate về Lịch Ngày với query date */
+    function handleDateClick(date: Date) {
+        router.push(`/?date=${toISODate(date)}`);
+    }
+
     return (
         <div>
             {/* AppBar */}
@@ -26,7 +34,6 @@ export default function LichThangPage() {
                 <button
                     onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth() + 1); }}
                     className="text-xs px-3 py-1 rounded border border-vn text-primary font-semibold cursor-pointer hover:bg-black/5 transition-colors"
-                    aria-label="Về tháng hiện tại"
                 >
                     Tháng này
                 </button>
@@ -38,6 +45,7 @@ export default function LichThangPage() {
                 today={today}
                 onPrevMonth={prevMonth}
                 onNextMonth={nextMonth}
+                onDateClick={handleDateClick}
             />
         </div>
     );
