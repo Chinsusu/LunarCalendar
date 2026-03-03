@@ -1,24 +1,45 @@
+"use client";
+
+import { useState } from "react";
+import { MonthCalendar } from "@/components/MonthCalendar";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-    title: "Lịch Tháng — Lịch Âm Việt",
-    description: "Xem lịch âm dương lịch tháng, ngày Hoàng Đạo, Rằm và Mùng 1",
-};
-
 export default function LichThangPage() {
+    const today = new Date();
+    const [year, setYear] = useState(today.getFullYear());
+    const [month, setMonth] = useState(today.getMonth() + 1);
+
+    function prevMonth() {
+        if (month === 1) { setMonth(12); setYear(y => y - 1); }
+        else setMonth(m => m - 1);
+    }
+
+    function nextMonth() {
+        if (month === 12) { setMonth(1); setYear(y => y + 1); }
+        else setMonth(m => m + 1);
+    }
+
     return (
-        <div className="px-4 pt-4">
-            <h1 className="font-display font-bold text-xl text-primary mb-4">Lịch Tháng</h1>
-            <div
-                className="rounded-xl p-6 text-center text-muted-vn"
-                style={{
-                    background: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                }}
-            >
-                <p className="text-sm">🚧 Đang phát triển — Sprint 1.5</p>
-                <p className="text-xs mt-1">MonthCalendar component sẽ có ở đây</p>
-            </div>
+        <div>
+            {/* AppBar */}
+            <header className="flex items-center justify-between px-4 py-3 border-b border-vn sticky top-0 z-20 bg-card-vn">
+                <h1 className="font-display font-bold text-lg text-primary tracking-wide">LỊCH THÁNG</h1>
+                <button
+                    onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth() + 1); }}
+                    className="text-xs px-3 py-1 rounded border border-vn text-primary font-semibold cursor-pointer hover:bg-black/5 transition-colors"
+                    aria-label="Về tháng hiện tại"
+                >
+                    Tháng này
+                </button>
+            </header>
+
+            <MonthCalendar
+                year={year}
+                month={month}
+                today={today}
+                onPrevMonth={prevMonth}
+                onNextMonth={nextMonth}
+            />
         </div>
     );
 }

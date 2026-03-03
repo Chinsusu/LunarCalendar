@@ -1,36 +1,23 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, Plus } from "lucide-react";
 import { DayHero } from "@/components/DayHero";
 import { DayInfoCard } from "@/components/DayInfoCard";
-import { getCanChi, getHoangDao, solarToLunar } from "@/lib/lunar";
+import { NotesSection } from "@/components/NotesSection";
+import { LunarDatePicker } from "@/components/LunarDatePicker";
+import { useLunarDate } from "@/hooks/useLunarDate";
+import { lunarToSolar } from "@/lib/lunar";
 import { toISODate } from "@/lib/utils";
 
 export default function HomePage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [mounted, setMounted] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
 
-  // Tránh hydration mismatch — chỉ render sau khi mount
   useEffect(() => { setMounted(true); }, []);
 
-  const d = selectedDate.getDate();
-  const m = selectedDate.getMonth() + 1;
-  const y = selectedDate.getFullYear();
-  const h = selectedDate.getHours();
-
-  const lunar = useMemo(() => solarToLunar(d, m, y), [d, m, y]);
-  const canChi = useMemo(() => getCanChi(d, m, y, h), [d, m, y, h]);
-  const hoangDaoHours = useMemo(
-    () => getHoangDao(lunar.day, lunar.month, lunar.year),
-    [lunar.day, lunar.month, lunar.year]
-  );
-
-  // Ngày hiện tại có phải Hoàng Đạo không (dựa vào giờ hiện tại)
-  const currentHoangDao = useMemo(() => {
-    const currentChi = Math.floor((h + 1) / 2) % 12;
-    return hoangDaoHours[currentChi]?.isHoangDao ?? false;
-  }, [h, hoangDaoHours]);
+  const { lunar, canChi, hoangDaoHours, isHoangDao } = useLunarDate(selectedDate);
 
   if (!mounted) {
     return (
@@ -46,25 +33,23 @@ export default function HomePage() {
     <div>
       {/* AppBar */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-vn sticky top-0 z-20 bg-card-vn">
-        <h1 className="font-display font-bold text-lg text-primary tracking-wide">
-          LỊCH ÂM VIỆT
-        </h1>
+        <h1 className="font-display font-bold text-lg text-primary tracking-wide">LỊCH ÂM VIỆT</h1>
         <div className="flex items-center gap-2">
           {!isToday && (
             <button
               onClick={() => setSelectedDate(new Date())}
               className="text-xs px-3 py-1 rounded border border-vn text-primary font-semibold cursor-pointer hover:bg-black/5 transition-colors"
-              aria-label="Về hôm nay"
             >
               Hôm nay
             </button>
           )}
-          <Calendar
-            size={22}
-            strokeWidth={1.5}
-            color="var(--color-primary)"
-            aria-hidden="true"
-          />
+          <button
+            onClick={() => setShowPicker(true)}
+            className="cursor-pointer p-1 hover:bg-black/5 rounded transition-colors"
+            aria-label="Chọn ngày âm lịch"
+          >
+            <Calendar size={22} strokeWidth={1.5} color="var(--color-primary)" />
+          </button>
         </div>
       </header>
 
@@ -75,25 +60,36 @@ export default function HomePage() {
       <DayInfoCard
         canChi={canChi}
         hoangDaoHours={hoangDaoHours}
-        isHoangDao={currentHoangDao}
+        isHoangDao={isHoangDao}
       />
 
-      {/* Notes placeholder */}
-      <section className="px-4 mt-4 mb-6">
-        <h2 className="font-body font-semibold text-sm text-muted-vn uppercase tracking-wider mb-3">
-          Ghi Chú Hôm Nay
-        </h2>
-        <div
-          className="rounded-xl p-4 text-sm text-muted-vn italic"
-          style={{
-            background: "var(--color-card)",
-            border: "1px solid var(--color-border)",
-            boxShadow: "var(--shadow-sm)",
+      {/* Notes */}
+      <NotesSection date={selectedDate} />
+
+      {/* FAB */}
+      <button
+        onClick={() => setShowPicker(true)}
+        className="fixed right-4 cursor-pointer w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 z-30"
+        style={{ bottom: 76, background: "var(--color-primary)" }}
+        aria-label="Chọn ngày"
+      >
+        <Plus size={24} color="#FFF8F0" strokeWidth={2} />
+      </button>
+
+      {/* LunarDatePicker */}
+      {showPicker && (
+        <LunarDatePicker
+          initialYear={lunar.year}
+          initialMonth={lunar.month}
+          initialDay={lunar.day}
+          onConfirm={(y, m, d, leap) => {
+            const solar = lunarToSolar(d, m, y, leap);
+            setSelectedDate(solar);
+            setShowPicker(false);
           }}
-        >
-          Chưa có ghi chú nào. Nhấn + để thêm.
-        </div>
-      </section>
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   );
 }
