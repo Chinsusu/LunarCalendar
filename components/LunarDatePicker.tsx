@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { daysInLunarMonth, getLeapMonth, lunarToSolar } from "@/lib/lunar";
 import { clampLunarDay } from "@/lib/utils";
@@ -125,7 +125,6 @@ export function LunarDatePicker({ initialYear, initialMonth, initialDay, onConfi
     const [day, setDay] = useState(initialDay ?? 1);
 
     const leapMonth = getLeapMonth(year);
-    const hasLeap = leapMonth === month;
     const maxDays = daysInLunarMonth(year, month, isLeap);
     const clampedDay = clampLunarDay(day, maxDays);
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { getLunarFromDate, formatSolarDateLong, addDays, toISODate } from "@/lib/utils";
+import { getLunarFromDate, formatSolarDateLong, addDays } from "@/lib/utils";
 import type { LunarDate } from "@/lib/lunar";
 
 interface DayHeroProps {

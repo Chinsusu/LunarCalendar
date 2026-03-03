@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Hourglass, Star, Sun } from "lucide-react";
+import { Clock, Hourglass, Star } from "lucide-react";
 import type { CanChi, HoangDaoHour } from "@/lib/lunar";
 import { formatHourRange } from "@/lib/utils";
 

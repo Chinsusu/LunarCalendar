@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Plus } from "lucide-react";
 import { DayHero } from "@/components/DayHero";
 import { DayInfoCard } from "@/components/DayInfoCard";

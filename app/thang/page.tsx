@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { MonthCalendar } from "@/components/MonthCalendar";
-import type { Metadata } from "next";
 
 export default function LichThangPage() {
     const today = new Date();

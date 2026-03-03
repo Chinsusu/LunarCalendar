@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { solarToLunar, getLeapMonth, getHoangDao } from "@/lib/lunar";
+import { solarToLunar, getHoangDao } from "@/lib/lunar";
 import { isSpecialLunarDay, toISODate } from "@/lib/utils";
 
 interface MonthCalendarProps {
