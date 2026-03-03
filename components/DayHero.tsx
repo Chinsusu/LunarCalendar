@@ -64,8 +64,8 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                 className="absolute inset-0 bg-no-repeat bg-center pointer-events-none"
                 style={{
                     backgroundImage: "url('/background.png')",
-                    backgroundSize: "75%",
-                    opacity: 0.10,
+                    backgroundSize: "85%",
+                    opacity: 0.18,
                 }}
             />
 
