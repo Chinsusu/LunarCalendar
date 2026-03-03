@@ -56,9 +56,12 @@ export function NotesSection({ date }: NotesSectionProps) {
                                     }
                                 </button>
                                 <span
-                                    className="flex-1 text-sm font-body leading-snug"
+                                    className="flex-1 leading-snug"
                                     style={{
-                                        color: "var(--color-text)",
+                                        fontFamily: "var(--font-body)",
+                                        fontWeight: note.isSystemNote ? 400 : 600,
+                                        fontSize: 15,
+                                        color: "var(--color-ink)",
                                         textDecoration: note.isChecked ? "line-through" : "none",
                                         opacity: note.isChecked ? 0.5 : 1,
                                         fontStyle: note.isSystemNote ? "italic" : "normal",
