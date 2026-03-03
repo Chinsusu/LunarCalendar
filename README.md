@@ -170,6 +170,7 @@ Chi tiết → [docs/lunar-algorithm.md](docs/lunar-algorithm.md)
 | [docs/lunar-algorithm.md](docs/lunar-algorithm.md) | Thuật toán âm lịch |
 | [docs/design-system.md](docs/design-system.md) | Design tokens & guidelines |
 | [docs/coding-standards.md](docs/coding-standards.md) | Coding standards |
+| [docs/ai-prompts.md](docs/ai-prompts.md) | AI Prompts cho Google Antigravity |
 | [docs/api.md](docs/api.md) | Lib & API reference |
 | [docs/deploy-checklist.md](docs/deploy-checklist.md) | Checklist trước deploy |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Hướng dẫn đóng góp |
