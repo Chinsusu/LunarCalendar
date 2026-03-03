@@ -92,7 +92,6 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                     <span className="font-body text-sm font-semibold text-ink/80">
                         {formatSolarDateLong(date)}
                     </span>
-                    <span className="text-label text-muted-vn">(Dương lịch)</span>
                 </div>
 
                 {/* ② Số ngày âm lịch to */}
@@ -109,7 +108,6 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                     <span className="font-display font-semibold text-[22px] text-primary">
                         {lunar.monthName}
                     </span>
-                    <span className="text-label text-muted-vn">(Âm)</span>
                 </div>
 
                 {/* ④ Năm Can Chi */}
@@ -117,7 +115,6 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                     <span className="font-body font-semibold text-[17px] text-primary">
                         Năm {lunar.yearName}
                     </span>
-                    <span className="text-label text-muted-vn">(Can Chi)</span>
                 </div>
             </div>
         </section>
