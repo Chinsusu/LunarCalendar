@@ -44,7 +44,7 @@ export function DayInfoCard({ canChi, hoangDaoHours, isHoangDao }: DayInfoCardPr
                 <Hourglass size={14} strokeWidth={1.5} color="var(--color-accent)" style={{ flexShrink: 0 }} />
                 <span style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 15, color: "var(--color-ink)" }}>
                     Can Chi:{" "}
-                    <span style={{ fontWeight: 400, color: "var(--color-muted)", fontSize: 14 }}>
+                    <span style={{ fontWeight: 400, color: "var(--color-muted)", fontSize: 13 }}>
                         {canChi.day}, {canChi.month}
                     </span>
                 </span>
