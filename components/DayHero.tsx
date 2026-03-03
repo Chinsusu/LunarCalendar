@@ -95,21 +95,21 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                     {lunar.day}
                 </span>
 
-                {/* Font A · Lora Bold · 20px · Color 1 — Tháng */}
-                <span style={{
-                    fontFamily: "var(--font-display)", fontWeight: 700,
-                    fontSize: 20, color: "var(--color-primary)", marginTop: 2,
-                }}>
-                    {lunar.monthName}
-                </span>
-
-                {/* Font A · Lora Bold · 20px · Color 1 — Tháng */}
-                <span style={{
-                    fontFamily: "var(--font-display)", fontWeight: 700,
-                    fontSize: 20, color: "var(--color-primary)", marginTop: 2,
-                }}>
-                    Năm {lunar.yearName}
-                </span>
+                {/* Font A · Lora Bold · 20px — Tháng (trái) & Năm (phải) cùng hàng */}
+                <div className="flex items-center justify-between w-full px-8 mt-2">
+                    <span style={{
+                        fontFamily: "var(--font-display)", fontWeight: 700,
+                        fontSize: 20, color: "var(--color-primary)",
+                    }}>
+                        {lunar.monthName}
+                    </span>
+                    <span style={{
+                        fontFamily: "var(--font-display)", fontWeight: 700,
+                        fontSize: 20, color: "var(--color-primary)",
+                    }}>
+                        Năm {lunar.yearName}
+                    </span>
+                </div>
             </div>
         </section>
     );
