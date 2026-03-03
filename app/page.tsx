@@ -58,7 +58,7 @@ function HomeContent() {
     <div>
       {/* AppBar */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-vn sticky top-0 z-20 bg-card-vn">
-        <h1 className="font-display font-bold text-lg text-primary tracking-wide">LỊCH ÂM VIỆT</h1>
+        <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20, color: "var(--color-primary)", letterSpacing: "0.05em" }}>LỊCH ÂM VIỆT</h1>
         <div className="flex items-center gap-2">
           {!isToday && (
             <button

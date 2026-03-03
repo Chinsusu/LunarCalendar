@@ -95,18 +95,18 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                     {lunar.day}
                 </span>
 
-                {/* Font A · Color 1 · 22px — Tháng */}
+                {/* Font A · Lora Bold · 20px · Color 1 — Tháng */}
                 <span style={{
-                    fontFamily: "var(--font-display)", fontWeight: 600,
-                    fontSize: 22, color: "var(--color-primary)", marginTop: 2,
+                    fontFamily: "var(--font-display)", fontWeight: 700,
+                    fontSize: 20, color: "var(--color-primary)", marginTop: 2,
                 }}>
                     {lunar.monthName}
                 </span>
 
-                {/* Font A · Lora Bold · 17px · Color 1 — Năm Can Chi */}
+                {/* Font A · Lora Bold · 20px · Color 1 — Tháng */}
                 <span style={{
                     fontFamily: "var(--font-display)", fontWeight: 700,
-                    fontSize: 18, color: "var(--color-primary)", marginTop: 4,
+                    fontSize: 20, color: "var(--color-primary)", marginTop: 2,
                 }}>
                     Năm {lunar.yearName}
                 </span>

@@ -33,7 +33,7 @@ export default function SuKienPage() {
         <div>
             {/* AppBar */}
             <header className="flex items-center justify-between px-4 py-3 border-b border-vn sticky top-0 z-20 bg-card-vn">
-                <h1 className="font-display font-bold text-lg text-primary tracking-wide">SỰ KIỆN</h1>
+                <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20, color: "var(--color-primary)", letterSpacing: "0.05em" }}>SỰ KIỆN</h1>
                 <button
                     onClick={() => { setEditingEvent(null); setShowForm(true); }}
                     className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded cursor-pointer transition-colors font-semibold"

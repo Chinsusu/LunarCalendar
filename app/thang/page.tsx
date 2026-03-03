@@ -30,7 +30,7 @@ export default function LichThangPage() {
         <div>
             {/* AppBar */}
             <header className="flex items-center justify-between px-4 py-3 border-b border-vn sticky top-0 z-20 bg-card-vn">
-                <h1 className="font-display font-bold text-lg text-primary tracking-wide">LỊCH THÁNG</h1>
+                <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 20, color: "var(--color-primary)", letterSpacing: "0.05em" }}>LỊCH THÁNG</h1>
                 <button
                     onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth() + 1); }}
                     className="text-xs px-3 py-1 rounded border border-vn text-primary font-semibold cursor-pointer hover:bg-black/5 transition-colors"
