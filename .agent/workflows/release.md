@@ -6,6 +6,13 @@ description: cập nhật changelog, tạo version tag, commit và push lên Git
 
 Workflow này thực hiện full release cycle: changelog → version tag → commit → push.
 
+> **⚠️ Lưu ý**: Nếu `git commit` bị treo (không có output trong terminal), nguyên nhân là git cố mở editor hoặc yêu cầu GPG signing. Chạy một lần:
+> ```bash
+> git config commit.gpgsign false
+> git config core.editor "true"
+> ```
+> Sau đó kiểm tra lại bằng `git log --oneline -1` — nếu commit xuất hiện thì lệnh trước đã thành công dù bị treo.
+
 ## Chuẩn Bị
 
 Trước khi chạy release, xác nhận:

@@ -4,6 +4,27 @@ Cảm ơn bạn đã quan tâm đến **Lịch Âm Việt**! Tài liệu này h�
 
 ---
 
+## ⚙️ Cấu Hình Git Lần Đầu (Bắt Buộc)
+
+Chạy các lệnh sau **một lần duy nhất** sau khi clone repo để tránh bị treo khi commit:
+
+```bash
+# Tắt GPG signing (tránh treo nếu không có GPG key)
+git config commit.gpgsign false
+
+# Set editor là 'true' (no-op) — tránh git mở nano/vim khi commit message đã được truyền qua -m
+git config core.editor "true"
+
+# Hoặc set global (áp dụng cho mọi repo trên máy)
+git config --global commit.gpgsign false
+git config --global core.editor "true"
+```
+
+> **Tại sao cần làm vậy?**  
+> Khi truyền commit message qua `git commit -m "..."` nhiều dòng, git trên một số hệ thống vẫn cố mở editor để confirm, gây treo terminal. Cấu hình `core.editor "true"` sẽ dùng lệnh `true` (luôn exit 0) thay thế, bỏ qua bước mở editor hoàn toàn.
+
+---
+
 ## 🚦 Quy Trình Làm Việc
 
 1. **Fork** repository về tài khoản của bạn
@@ -128,8 +149,14 @@ npm run test:lunar
 node >= 18.17
 npm >= 9
 
-# Cài đặt
+# Clone & cài đặt
+git clone git@github.com:Chinsusu/LunarCalendar.git
+cd LunarCalendar
 npm install
+
+# Cấu hình git (chạy một lần)
+git config commit.gpgsign false
+git config core.editor "true"
 
 # Chạy dev server
 npm run dev
