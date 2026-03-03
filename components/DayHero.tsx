@@ -96,7 +96,7 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                 </span>
 
                 {/* Font A · Lora Bold · 20px — Tháng (trái) & Năm (phải) cùng hàng */}
-                <div className="flex items-center justify-between w-full px-8 mt-2">
+                <div className="flex items-center justify-between self-stretch px-12 mt-2">
                     <span style={{
                         fontFamily: "var(--font-display)", fontWeight: 700,
                         fontSize: 20, color: "var(--color-primary)",
