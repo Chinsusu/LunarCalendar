@@ -63,7 +63,7 @@ export function DayHero({ date, onDateChange }: DayHeroProps) {
                 aria-hidden="true"
                 className="absolute inset-0 bg-no-repeat bg-center pointer-events-none"
                 style={{
-                    backgroundImage: "url('/background.png')",
+                    backgroundImage: "url('/background.jpg')",
                     backgroundSize: "75%",
                     opacity: 0.10,
                 }}
